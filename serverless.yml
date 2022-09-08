@@ -8,27 +8,58 @@ provider:
 
   # you can add statements to the Lambda function's IAM Role here
   iam:
-    role: arn:aws:lambda:us-east-1:845847047647:layer:pillow:1
+    role: arn:aws:iam::845847047647:role/mohneesh-transcoder-role-for-lambda
 
 package:
+  excludeDevDependencies: true
   patterns:
-    - "!node_modules"
-      #  - '!exclude-me-dir/**'
+    - "!node_modules/**"
+    - "!__pycache__/**"
+    - "!package*.json"
+    - "!event.json"
     - "!requirements.txt"
+    # - "**.py"
     #  - include-me-dir/**
 
 functions:
   dev-xana-py-image-compressor:
     name: dev-xana-py-image-compressor
-    runtime: python3.8
-    description: Lambda to compress image using python PIL library
+    description: Lambda to compress image when object created on s3 bucket,(deprecated)
+    enabled: false
     handler: handler.process_image
+    runtime: python3.8
+    memorySize: 1850
+    timeout: 20
     layers:
       - arn:aws:lambda:us-east-1:845847047647:layer:pillow:1
     events:
       - s3:
           bucket: api-test-xana
-          event: s3:objectCreated:*
+          event: s3:ObjectCreated:*
           rules:
-            - prefix: apitestxana/input/images
+            - prefix: apitestxana/input/images/
           existing: true
+          # forceDeploy: true
+    # events:
+    #   - sqs:
+    #       arn: arn:aws:sqs:us-east-1:845847047647:dev-xana-resizeImages
+  xana-image-compressor:
+    name: dev_xana_image_compress
+    description: PIL based compressor for png,jpg,heif files creating cdn ready images
+    module: img-api
+    handler: rest_api.get_compressed
+    runtime: python3.8
+    memorySize: 1024
+    enabled: true
+    timeout: 6
+    layers:
+      - arn:aws:lambda:us-east-1:845847047647:layer:pillow:3
+    events:
+      - http:
+          method: get
+          # path: /{size}/{image}
+          path: /compress/{stage}/{img_path}
+    package:
+      individually: true
+plugins:
+  - serverless-disable-functions
