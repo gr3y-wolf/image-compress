@@ -30,7 +30,7 @@ def compress_img(
         # get the original image size in bytes
         # image_size = os.path.getsize(image_name)
         # print the size before compression/resizing
-        # print("[*] Size before compression:", get_size_format(image_size))
+        print("[*] Size before compression:", get_size_format(image_size))
         if new_size_ratio < 1.0:
             # if resizing ratio is below 1.0, then multiply width & height with this ratio to reduce image size
             img = img.resize(
@@ -48,9 +48,9 @@ def compress_img(
             # save the image with the corresponding quality and optimize set to True
             if img.format == "JPEG":
                 img.save(out_img, format="jpeg", quality=quality, optimize=True)
-            elif img.format == "png":
-                print("saving PNG file as JPG file")
-                img.save(out_img, format="png", quality=quality, optimize=True)
+            # elif img.format == "PNG":
+            #     print("saving PNG file as png file")
+            #     img.save(out_img, format="jpeg", quality=quality, optimize=True)
             else:
                 print("[*] Image format is :", img.format)
                 img.save(out_img, format=img.format, quality=quality, optimize=True)

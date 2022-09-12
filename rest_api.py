@@ -30,13 +30,13 @@ def get_compressed(event, context):
         print(f"extension is =>> {ext}")
         
         obj_body, obj_length = get_file_from_s3(bucket_name=BUCKET, key=key)
-        print(obj_body, obj_length)
+        # print(obj_body, obj_length)
        
         compressed = compress_img(blob=obj_body,filename=file_name, ext=ext, image_size=obj_length, quality=65, new_size_ratio=1)
-        print(compressed)
-        print('compressed size is ==>> ', get_size_format(compressed.tell()))
-        
-        if ext == '.heic':
+        # print(compressed)
+        # print('compressed size is ==>> ', get_size_format(compressed.tell()))
+        exts_to_jpg = ['.heic', '.heif']
+        if ext in exts_to_jpg:
             key = file_name + '.jpg'
         
         final_path = get_s3_output_path(string=key, stage=stage)
