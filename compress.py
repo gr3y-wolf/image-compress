@@ -19,7 +19,7 @@ def compress_img(
     fmt = whatimage.identify_image(blob)
     print('>>>>>>>>>>>>>>>    image stream format  ==>>> ', fmt)
     if fmt in ['heic', 'avif']:
-        return convert_heic(image=blob, ext=ext, quality=75)
+        return convert_heic(image=blob, ext=ext, quality=65)
     else:
         img = Image.open(BytesIO(blob))
         img.load()
@@ -104,7 +104,7 @@ def convert_heic(image, ext, quality):
          # Convert to other file format jpeg
         pi = Image.frombytes(i.mode, i.size, i.data,"raw", i.mode,  i.stride)
         pi.load()
-        pi.save(output, format="jpeg", quality=quality, optimize=True)
+        pi.save(output, format="jpeg", quality=60, optimize=True)
         output.seek(0)       ## this is very important otherwise image data would be lost.
         return output
     except Exception as e:
