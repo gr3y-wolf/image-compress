@@ -1,5 +1,5 @@
 service: xana-media-handler-python
-frameworkVersion: "3"
+frameworkVersion: '3'
 
 provider:
   name: aws
@@ -13,40 +13,40 @@ provider:
 package:
   excludeDevDependencies: true
   patterns:
-    - "!node_modules/**"
-    - "!__pycache__/**"
-    - "!package*.json"
-    - "!event.json"
-    - "!requirements.txt"
+    - '!node_modules/**'
+    - '!__pycache__/**'
+    - '!package*.json'
+    - '!event.json'
+    - '!requirements.txt'
     # - "**.py"
     #  - include-me-dir/**
+  individually: true
 
 functions:
-  dev-xana-py-image-compressor:
-    name: dev-xana-py-image-compressor
-    description: Lambda to compress image when object created on s3 bucket,(deprecated)
-    enabled: false
-    handler: handler.process_image
-    runtime: python3.8
-    memorySize: 1850
-    timeout: 20
-    layers:
-      - arn:aws:lambda:us-east-1:845847047647:layer:pillow:1
-    events:
-      - s3:
-          bucket: api-test-xana
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: apitestxana/input/images/
-          existing: true
-          # forceDeploy: true
-    # events:
-    #   - sqs:
-    #       arn: arn:aws:sqs:us-east-1:845847047647:dev-xana-resizeImages
+  # dev-xana-py-image-compressor:
+  #   name: dev-xana-py-image-compressor
+  #   description: Lambda to compress image when object created on s3 bucket,(deprecated)
+  #   enabled: false
+  #   handler: handler.process_image
+  #   runtime: python3.8
+  #   memorySize: 1850
+  #   timeout: 20
+  #   layers:
+  #     - arn:aws:lambda:us-east-1:845847047647:layer:pillow:1
+  #   events:
+  #     - s3:
+  #         bucket: api-test-xana
+  #         event: s3:ObjectCreated:*
+  #         rules:
+  #           - prefix: apitestxana/input/images/
+  #         existing: true
+  # forceDeploy: true
+  # events:
+  #   - sqs:
+  #       arn: arn:aws:sqs:us-east-1:845847047647:dev-xana-resizeImages
   xana-image-compressor:
     name: dev_xana_image_compress
     description: PIL based compressor for png,jpg,heif files creating cdn ready images
-    module: img-api
     handler: rest_api.get_compressed
     runtime: python3.8
     memorySize: 2048
@@ -61,5 +61,27 @@ functions:
           path: /compress/{stage}/{img_path}
     package:
       individually: true
+  media-convert:
+    name: dev-xana-video-convert
+    description: This lambda uses MediaConvert service to convert various video formats to cdn ready content
+    handler: handler.convert
+    runtime: python3.8
+    memorySize: 256
+    events:
+      - s3:
+          bucket: api-test-xana
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: apitestxana/input/videos/
+          existing: true
+    environment:
+      BUCKET_NAME: api-test-xana
+      ENV: dev
+      LARGE_SIZE: 1280
+      MEDIA_CONVERT_ROLE: arn:aws:iam::845847047647:role/mohneesh-transcoder-role-for-lambda
+      MEDIA_JOB_SETTING: emc-templates
+      MEDIA_TEMPLATE_NAME: single-output
+      REGION: ap-southeast-1
+      THUMBNAIL_SIZE: 360
 plugins:
   - serverless-disable-functions
