@@ -44,11 +44,8 @@ def get_s3_input_path(string, stage):
     return key
 
 
-def get_s3_output_path(string,stage):
-    print(string)
-    # if stage == 'dev':
-    #     prefix = "apitestxana/"
-    # elif stage == 'prod':
-    #     prefix = 'xanaprod/'    
-    key = string.replace('input/images', 'Defaults')
+def get_s3_output_path(string,dest):
+    REPLACE_PATH = 'input/images'
+    key = string.replace(REPLACE_PATH, dest)
+    # print(key)
     return key
