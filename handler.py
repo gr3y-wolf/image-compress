@@ -135,10 +135,20 @@ def convert(event, context):
         # Use MediaConvert SDK UserMetadata to tag jobs with the assetID
         # Events from MediaConvert will have the assetID in UserMedata
         jobMetadata = {}
+        
+        
+        s3TagResponse=s3client.get_object_tagging(Bucket=sourceS3Bucket,Key=s3_input_key)
+        print(s3TagResponse)
+        if len(s3TagResponse['TagSet']) <2:
+            print('lack of s3 object tagging')
+            return
+        userId= get_s3_tag_by_key(s3TagResponse['TagSet'],'userId')
+        objectid=get_s3_tag_by_key(s3TagResponse['TagSet'],'objectid')
 
-        jobMetadata["inputPath"] = s3_input_key
-        jobMetadata["isImport"] = "0"
-
+        jobMetadata["filename"] = fileName
+        jobMetadata["application"] = "xana"
+        jobMetadata["userId"]= userId
+        
         print(jobMetadata, "jobMetadata")
 
         try:
@@ -263,7 +273,7 @@ def convert(event, context):
                 # Convert the video using AWS Elemental MediaConvert
                 print('Creating job for media convert...')
                 job = client.create_job(
-                    Role=mediaConvertRole, UserMetadata=jobMetadata, Settings=jobSetting
+                    Role=mediaConvertRole, UserMetadata=jobMetadata, Settings=jobSetting, StatusUpdateInterval='SECONDS_10', Tags={'application': 'xana' }
                 )
                 # store job setting to s3
 
